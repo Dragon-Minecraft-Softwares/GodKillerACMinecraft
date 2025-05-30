@@ -1,9 +1,0 @@
-name: GodKillerAntiCheatSystem
-version: '0.1-PreBeta'
-main: top.helloworldcoder.GodKillerAnticheat
-api-version: '1.21'
-prefix: "诛仙反作弊系统"
-load: STARTUP
-authors: [ HelloWorldCoder(-China) ]
-description: "诛仙反作弊系统 | 诛尽天下邪仙,只留清白在人间 $> 我们要成为Minecraft最好的反作弊_"
-website: https://github.com/Dragon-Minecraft-Softwares/GodKillerACMinecraft 
