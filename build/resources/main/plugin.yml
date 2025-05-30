@@ -1,6 +1,6 @@
 name: GodKillerAntiCheatSystem
 version: '0.1-PreBeta'
-main: top.helloworldcoder.godkilleranticheat
+main: top.helloworldcoder.GodKillerAnticheat
 api-version: '1.21'
 prefix: "诛仙反作弊系统"
 load: STARTUP
