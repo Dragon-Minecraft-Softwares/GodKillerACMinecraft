@@ -71,7 +71,8 @@ public class banning {
      */
     public static class BanReturnType // 封禁信息返回
     {
-        public BanReturnType() {
+        public BanReturnType()
+        {
             this.banned=false;
             this.name="";
             this.ip="";
@@ -80,6 +81,7 @@ public class banning {
             this.duration=0;
             this.pointer=-1;
             this.banId =-1;
+            if(debug) logging.log(Level.INFO, GodKillerAnticheat.banPrefix, "&b&lDebug: Using false root in BanReturnType");
         }
         public BanReturnType(boolean banned, String name, String ip, long time, String reason, long duration, int pointer, int banId) {
             this.banned=banned;
@@ -90,6 +92,7 @@ public class banning {
             this.duration=duration;
             this.pointer=pointer;
             this.banId =banId;
+            if(debug) logging.log(Level.INFO, GodKillerAnticheat.banPrefix, "&b&lDebug: Using true root in BanReturnType");
         }
         public boolean banned;  // 是否被封禁
         public String name;     // 玩家名称
@@ -293,19 +296,28 @@ public class banning {
      * @param list    要检查的封禁记录
      * @return 封禁信息返回对象，包含封禁状态和详细信息
      */
-    static BanReturnType banTimeCheck(String name, String ip, BanInfoType list)
+    static BanReturnType banTimeCheck(String name,String ip,BanInfoType list,BanListType listobj)
     {
-        return new BanReturnType((list.time > System.currentTimeMillis() || list.duration == 0), name, ip, list.time, list.reason, list.duration, banlist.indexOf(list), list.banId);
+        if(debug) logging.log(Level.INFO, GodKillerAnticheat.banPrefix, "&b&lDebug: Find Place: "+banlist.indexOf(listobj));
+        return new BanReturnType((list.time > System.currentTimeMillis() || list.duration == 0), name, ip, list.time, list.reason, list.duration,banlist.indexOf(listobj),list.banId);
     }
 
     public static BanReturnType isBanned(List<BanListType> banlist, String name, String ip)
     {
-        Optional<BanListType> banListThing = banlist.stream().filter(list->list.name.equalsIgnoreCase(name) || list.ip.equalsIgnoreCase(ip)).findFirst();
+        if(debug)
+        {
+            logging.log(Level.INFO, GodKillerAnticheat.banPrefix, "&b&lDebug: TargetIP: "+ip.split("/")[1] + " "+ip);
+            for(BanListType list:banlist)
+            {
+                logging.log(Level.INFO, GodKillerAnticheat.banPrefix, "&b&lDebug: FoundIP: "+list.ip.split("/")[0]);
+            }
+        }
+        Optional<BanListType> banListThing = banlist.stream().filter(list->list.name.equalsIgnoreCase(name) || list.ip.split("/")[0].equalsIgnoreCase(ip.split("/")[1])).findFirst();
         if(banListThing.isPresent())
         {
             BanListType list=banListThing.get();
             // 解封时间判定
-            return banTimeCheck(list.name,list.ip,baninfolist.get(list.banId));
+            return banTimeCheck(list.name,list.ip,baninfolist.get(list.banId),list);
         }
         return new BanReturnType();
     }

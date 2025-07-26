@@ -14,10 +14,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static DragonMCSoftwares.GodKillerAnticheat.banlist;
+import static DragonMCSoftwares.GodKillerAnticheat.debug;
+import static org.bukkit.Bukkit.getOfflinePlayers;
 import static org.bukkit.Bukkit.getOnlinePlayers;
 
 import java.util.Objects;
@@ -45,17 +49,27 @@ public class commands
         Permission unbanpermission = new Permission("godkilleracmc.bancontrol.unban","允许操作解封");
         unbanpermission.setDefault(PermissionDefault.OP);
         plugin.getServer().getPluginManager().addPermission(unbanpermission);
+        Permission debugpermission = new Permission("godkilleracmc.system.debug","允许操作调试");
+        debugpermission.setDefault(PermissionDefault.OP);
+        plugin.getServer().getPluginManager().addPermission(debugpermission);
         // 注册命令
         try
         {
             Objects.requireNonNull(plugin.getCommand("ban")).setExecutor(new banCommandExecute());
             Objects.requireNonNull(plugin.getCommand("ban")).setTabCompleter(new banCommandComplete());
             Objects.requireNonNull(plugin.getCommand("ban")).setUsage("/ban <玩家> <原因> <时间>(秒,永封0)");
-            List<String> aliases = new java.util.ArrayList<>();
+            List<String> aliases = new ArrayList<>();
             aliases.add("totalban");
             aliases.add("tempban");
             aliases.add("ban-ip");
             Objects.requireNonNull(plugin.getCommand("ban")).setAliases(aliases);
+            Objects.requireNonNull(plugin.getCommand("unban")).setExecutor(new unbanCommandExecute());
+            Objects.requireNonNull(plugin.getCommand("unban")).setTabCompleter(new unbanCommandComplete());
+            Objects.requireNonNull(plugin.getCommand("unban")).setUsage("/unban <玩家>");
+            aliases = new ArrayList<>();
+            aliases.add("unban-ip");
+            Objects.requireNonNull(plugin.getCommand("unban")).setAliases(aliases);
+            Objects.requireNonNull(plugin.getCommand("gacdebug")).setExecutor(new debugCommandExecute());
         }
         catch(Exception e)
         {
@@ -94,7 +108,7 @@ public class commands
                         sender.sendMessage(logging.ChangeColorcode(GodKillerAnticheat.chatPrefix + "&a&l成功将玩家 &e"+args[0]+" &a以&b "+args[1]+" &a为理由封印&9 "+args[2]+" &a秒&r"));
                         return true;
                     }
-                    catch (java.lang.ArrayIndexOutOfBoundsException e)
+                    catch (ArrayIndexOutOfBoundsException e)
                     {
                         sender.sendMessage(logging.ChangeColorcode(GodKillerAnticheat.chatPrefix + "&4&l缺少参数！&r"));
                         return false;
@@ -112,34 +126,6 @@ public class commands
                 }
                 else {
                     sender.sendMessage(logging.ChangeColorcode(GodKillerAnticheat.chatPrefix + "&r&6&l诛啥仙啊,你看你配吗??"));
-                }
-            }
-            // unban 逻辑
-            else if (command.getName().equalsIgnoreCase("unban"))
-            {
-                if (sender.hasPermission("godkilleracmc.bancontrol.ban"))
-                {
-                    try
-                    {
-                        Player unbanplayer = Bukkit.getPlayer(args[0]);
-                        for (banning.BanListType banlistThing:banlist) {
-                            if (unbanplayer != null && banlistThing.name.equals(unbanplayer.getName())) {
-                                banning.unban(banlistThing.banId);
-                                break;
-                            }
-                        }
-                        return true;
-                    }
-                    catch (java.lang.ArrayIndexOutOfBoundsException e)
-                    {
-                        sender.sendMessage(logging.ChangeColorcode(GodKillerAnticheat.chatPrefix + "&4&l缺少参数！&r"));
-                        return false;
-                    }
-                    catch (Exception e)
-                    {
-                        sender.sendMessage(logging.ChangeColorcode(GodKillerAnticheat.chatPrefix + "&4&l未知错误！&r"));
-                        return false;
-                    }
                 }
             }
             return false;
@@ -175,6 +161,78 @@ public class commands
                 else return Collections.singletonList("你没有权限执行这个指令");
             }
             return null;
+        }
+    }
+
+    public static class unbanCommandExecute implements CommandExecutor   // 解封执行
+    {
+        public boolean onCommand(CommandSender sender,Command command,@NotNull String label,@NotNull String[] args)
+        {
+            if (sender.hasPermission("godkilleracmc.bancontrol.unban"))
+            {
+                try
+                {
+                    for(String Person:args)
+                    {
+                        for (banning.BanListType banlistThing:banlist)
+                        {
+                            if(banlistThing.name.equals(Person))
+                            {
+                                banning.unban(banlistThing.banId);
+                                break;
+                            }
+                        }
+                    }
+                    return true;
+                }
+                catch(ArrayIndexOutOfBoundsException e)
+                {
+                    sender.sendMessage(logging.ChangeColorcode(GodKillerAnticheat.chatPrefix + "&4&l缺少参数！&r"));
+                }
+                catch (Exception e)
+                {
+                    sender.sendMessage(logging.ChangeColorcode(GodKillerAnticheat.chatPrefix + "&4&l未知错误！&r"));
+                }
+            }
+            else
+            {
+                sender.sendMessage(logging.ChangeColorcode(GodKillerAnticheat.chatPrefix+"&r&6&l解啥封印啊,你看你配吗??"));
+            }
+            return false;
+        }
+    }
+
+    public static class unbanCommandComplete implements TabCompleter // 解封补全
+    {
+        public List<String> onTabComplete(CommandSender sender,Command command,@NotNull String label,@NotNull String[] args)
+        {
+            if (sender.hasPermission("godkilleracmc.bancontrol.unban"))
+            {
+                List<String> Players=new ArrayList<String>();
+                for(banning.BanListType banlistThing:banlist)
+                {
+                    Players.add(banlistThing.name);
+                }
+                return Players;
+            }
+            return Collections.singletonList("你没有权限执行这个指令");
+        }
+    }
+
+    public static class debugCommandExecute implements CommandExecutor   // Debug Switch
+    {
+        public boolean onCommand(CommandSender sender,Command command,@NotNull String label,@NotNull String[] args)
+        {
+            if (sender.hasPermission("godkilleracmc.system.debug"))
+            {
+                debug=!debug;
+                return true;
+            }
+            else
+            {
+                sender.sendMessage(logging.ChangeColorcode(GodKillerAnticheat.chatPrefix+"&r&6&lPermission Denied"));
+            }
+            return false;
         }
     }
 }

@@ -1,5 +1,4 @@
 package DragonMCSoftwares;
-// 修复IP反绕！
 import DragonMCSoftwares.banning.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -44,6 +43,10 @@ public final class GodKillerAnticheat extends JavaPlugin implements Listener
      * 存储封禁信息
      */
     public static List<BanInfoType> baninfolist=new ArrayList<>();
+    /**
+     * 调试模式指示
+     */
+    public static boolean debug=false;
     @Override
     public void onEnable()
     {
@@ -70,6 +73,7 @@ public final class GodKillerAnticheat extends JavaPlugin implements Listener
         loging(Level.INFO,"玩家["+event.getName()+"]("+event.getAddress()+")尝试登录服务器,正在审查流量.....");
         loging(Level.INFO,"玩家["+event.getName()+"]("+event.getAddress()+")登陆审查:检查封禁.....");
         BanReturnType banInfo=banning.isBanned(banlist,event.getName(),event.getAddress().toString());  // 获取FJ数据
+        if(debug) loging(Level.INFO,"玩家["+event.getName()+"]("+event.getAddress()+")登陆审查: 封禁信息: "+banInfo.name+"("+banInfo.ip+")");
         if(banInfo.banned)
         {
             BanInfoType banDataInfo=baninfolist.get(banInfo.banId);
@@ -92,7 +96,7 @@ public final class GodKillerAnticheat extends JavaPlugin implements Listener
                     loging(Level.WARNING,"玩家[" + event.getName() + "](" + event.getAddress() + ")登陆审查: 玩家尝试了进行用户名绕过!已更新数据库!");
                 }
             }
-            if(!Objects.equals(event.getAddress().toString(),banInfo.ip))
+            if(!Objects.equals(event.getAddress().toString().split("/")[1],banInfo.ip))
             {
                 boolean flag=true;
                 for(BanListType list:banlist) if(list.ip.equalsIgnoreCase(event.getAddress().toString()))
@@ -102,10 +106,17 @@ public final class GodKillerAnticheat extends JavaPlugin implements Listener
                 }
                 if(flag)
                 {
-                    BanListType thisPlayer = banlist.get(banInfo.pointer);
-                    thisPlayer.ip = event.getAddress().toString();
-                    banning.addBan(banlist,thisPlayer.name,thisPlayer.ip,banInfo.banId);
-                    loging(Level.WARNING, "玩家[" + event.getName() + "](" + event.getAddress() + ")登陆审查: 玩家尝试了进行IP绕过!已更新数据库!");
+                    try
+                    {
+                        BanListType thisPlayer = banlist.get(banInfo.pointer);
+                        thisPlayer.ip = event.getAddress().toString();
+                        banning.addBan(banlist, thisPlayer.name, thisPlayer.ip, banInfo.banId);
+                        loging(Level.WARNING, "玩家[" + event.getName() + "](" + event.getAddress() + ")登陆审查: 玩家尝试了进行IP绕过!已更新数据库!");
+                    }
+                    catch(Exception e)
+                    {
+                        loging(Level.WARNING,"查询失败!这大概是内部错误,请联系DragonMinecraftSoftwares并附上报错信息: "+e);
+                    }
                 }
             }
         }
