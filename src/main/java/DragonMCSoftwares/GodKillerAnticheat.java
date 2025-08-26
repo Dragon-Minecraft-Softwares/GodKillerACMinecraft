@@ -1,5 +1,6 @@
 package DragonMCSoftwares;
 import DragonMCSoftwares.banning.*;
+import DragonUtils.utils;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
@@ -9,6 +10,7 @@ import java.util.*;
 import java.util.logging.Level;
 import static DragonUtils.utils.formatTimeprd;
 import static java.lang.System.currentTimeMillis;
+import DragonUtils.configs;
 
 /**
  * 诛仙反作弊系统主类
@@ -21,7 +23,7 @@ public final class GodKillerAnticheat extends JavaPlugin implements Listener
     
     /** 封禁消息前缀 */
     public static String banPrefix ="&6&k|&a&k[&r&l&6诛仙&r&b&n&o反作弊系统&r&a&k]&6&k|&r";
-    
+
     /**
      * 记录日志的便捷方法
      * 
@@ -50,21 +52,37 @@ public final class GodKillerAnticheat extends JavaPlugin implements Listener
     @Override
     public void onEnable()
     {
-        // Plugin startup logic
-        loging(Level.INFO,"插件起动中...");
-        loging(Level.INFO,"启动事件监听...");
-        getServer().getPluginManager().registerEvents(this, this);
-        loging(Level.INFO,"监听启动完成");
-        loging(Level.INFO,"加载配置文件...");
-        // 加载配置文件
-        loging(Level.INFO,"插件配置加载完成");
-        loging(Level.INFO,"正在加载bStats,这不会收集你的个人数据,请放心使用...");
-//      Metrics metrics = new Metrics(this,26100);
-        loging(Level.INFO,"bStats加载完成");
-        loging(Level.INFO,"正在注册命令...");
-        commands.commandInit();
-        loging(Level.INFO,"插件命令注册完成");
-        loging(Level.INFO,"插件启动完成");
+        try
+        {
+            // Plugin startup logic
+            loging(Level.INFO, "插件起动中...");
+            loging(Level.INFO, "初始化DragonUtils...");
+            utils.init(this);
+            loging(Level.INFO, "DragonUtils初始化完成...");
+            loging(Level.INFO, "启动事件监听...");
+            getServer().getPluginManager().registerEvents(this, this);
+            loging(Level.INFO, "监听启动完成");
+            loging(Level.INFO, "加载配置文件...");
+            // 加载配置文件
+            List<configs.ConfigDescribeType> ConfigList=new ArrayList<>();
+            ConfigList.add(new configs.ConfigDescribeType("","config.yml"));
+            ConfigList.add(new configs.ConfigDescribeType("runtimedata","baninfolist.json"));
+            ConfigList.add(new configs.ConfigDescribeType("runtimedata","banplayerlist.json"));
+            configs.init(ConfigList);
+            loging(Level.INFO, "插件配置加载完成");
+            loging(Level.INFO, "正在加载bStats,这不会收集你的个人数据,请放心使用...");
+            // Metrics metrics = new Metrics(this,26100);
+            loging(Level.INFO, "bStats加载完成");
+            loging(Level.INFO, "正在注册命令...");
+            commands.commandInit();
+            loging(Level.INFO, "插件命令注册完成");
+            loging(Level.INFO, "插件启动完成");
+        }
+        catch(Exception e)
+        {
+            loging(Level.WARNING,"插件启动失败!这大概是内部错误,请联系DragonMinecraftSoftwares并附上报错信息: "+e);
+            getServer().getPluginManager().disablePlugin(this);
+        }
     }
 
     @EventHandler
@@ -104,7 +122,7 @@ public final class GodKillerAnticheat extends JavaPlugin implements Listener
                     flag=false;                                                                                                 // 封禁反绕过
                     break;
                 }
-                if(flag)
+                if(flag && banInfo.pointer>=0)
                 {
                     try
                     {

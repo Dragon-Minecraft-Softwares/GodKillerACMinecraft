@@ -11,7 +11,7 @@ public final class logging
 {
     static
     {
-        logging.log(Level.INFO,"&6[DragonUtils] &r","&aSuccessfully Loaded &bModule [logging] &r&ain &r&6&_DragonUtils by HelloWorldCoder-China&r&a !&r");
+        logging.log(Level.INFO,"&6[DragonUtils] &r","&aSuccessfully Loaded &bModule [logging] &r&ain &r&6&_DragonUtils by DragonMinecraftSoftwares&r&a !&r");
     }
     public static String ANSIDataBase(char colorcode) // ANSI数据库,手打
     {

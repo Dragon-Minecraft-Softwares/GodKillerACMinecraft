@@ -5,6 +5,8 @@
 package DragonUtils;
 
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -17,7 +19,21 @@ public class utils
 {
     static
     {
-        logging.log(Level.INFO,"&6[DragonUtils] &r","&aSuccessfully Loaded &bModule [utils] &r&ain &r&6&_DragonUtils by HelloWorldCoder-China&r&a !&r");
+        logging.log(Level.INFO,"&6[DragonUtils] &r","&aSuccessfully Loaded &bModule [utils] &r&ain &r&6&_DragonUtils by DragonMinecraftSoftwares&r&a !&r");
+    }
+
+    /**
+     * 插件实例
+     */
+    public static Plugin plugin;
+
+    /**
+     * 初始化
+     * @param plugin1 插件实例
+     */
+    public static void init(Plugin plugin1)
+    {
+        plugin=plugin1;
     }
 
     // 格式化时间戳

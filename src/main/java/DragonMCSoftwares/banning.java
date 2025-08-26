@@ -26,7 +26,7 @@ public class banning {
       记录模块加载信息到日志
      */
     static {
-        logging.log(Level.INFO, "&6[DragonUtils] &r", "&aSuccessfully Loaded &bModule [banning] &r&ain &r&6&_DragonUtils by HelloWorldCoder-China&r&a !&r");
+        logging.log(Level.INFO, "&6[DragonUtils] &r", "&aSuccessfully Loaded &bModule [banning] &r&ain &r&6&_DragonUtils by DragonMinecraftSoftwares&r&a !&r");
     }
 
     /**
