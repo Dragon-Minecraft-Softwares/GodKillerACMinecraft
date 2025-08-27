@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -353,7 +352,7 @@ public class Metrics {
                 infoLogger.accept("Sent bStats metrics data: " + data.toString());
             }
             String url = String.format(REPORT_URL, platform);
-            HttpsURLConnection connection = (HttpsURLConnection) new URI(url).toURL().openConnection();
+            HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
             // Compress the data to save bandwidth
             byte[] compressedData = compress(data.toString());
             connection.setRequestMethod("POST");

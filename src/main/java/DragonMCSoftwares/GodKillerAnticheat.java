@@ -1,6 +1,8 @@
 package DragonMCSoftwares;
+
 import DragonMCSoftwares.banning.*;
 import DragonUtils.utils;
+import OutSideAPIs.bStats.Metrics;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
@@ -58,6 +60,7 @@ public final class GodKillerAnticheat extends JavaPlugin implements Listener
             loging(Level.INFO, "插件起动中...");
             loging(Level.INFO, "初始化DragonUtils...");
             utils.init(this);
+            banning.init(banlist,baninfolist);
             loging(Level.INFO, "DragonUtils初始化完成...");
             loging(Level.INFO, "启动事件监听...");
             getServer().getPluginManager().registerEvents(this, this);
@@ -71,7 +74,7 @@ public final class GodKillerAnticheat extends JavaPlugin implements Listener
             configs.init(ConfigList);
             loging(Level.INFO, "插件配置加载完成");
             loging(Level.INFO, "正在加载bStats,这不会收集你的个人数据,请放心使用...");
-            // Metrics metrics = new Metrics(this,26100);
+            Metrics metrics = new Metrics(this,26100);
             loging(Level.INFO, "bStats加载完成");
             loging(Level.INFO, "正在注册命令...");
             commands.commandInit();
@@ -146,6 +149,9 @@ public final class GodKillerAnticheat extends JavaPlugin implements Listener
     public void onDisable() {
         // Plugin shutdown logic
         loging(Level.INFO,"插件关闭中...");
+        loging(Level.INFO,"正在保存数据...");
+        banning.saveConfig(banlist,baninfolist);
+        loging(Level.INFO,"数据保存完成");
         // 插件关闭
         loging(Level.INFO,"插件关闭完成");
     }

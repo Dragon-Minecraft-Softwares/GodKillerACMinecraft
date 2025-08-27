@@ -4,13 +4,12 @@
 
 package DragonMCSoftwares;
 
+import DragonUtils.configs;
 import DragonUtils.logging;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import DragonUtils.configs;
+import java.util.*;
 import java.util.logging.Level;
 import static DragonUtils.utils.formatTimeprd;
 import static DragonMCSoftwares.GodKillerAnticheat.*;
@@ -20,7 +19,8 @@ import static DragonMCSoftwares.GodKillerAnticheat.*;
  * 提供玩家封禁、解封和封禁信息查询等功能
  * 时间使用long类型防止溢出
  */
-public class banning {
+public class banning
+{
     /*
       静态初始化块，在类加载时执行
       记录模块加载信息到日志
@@ -30,18 +30,69 @@ public class banning {
     }
 
     /**
+     * 初始化封禁模块
+     */
+    public static void init(List<BanListType> banlist,List<BanInfoType> baninfolist)
+    {
+        logging.log(Level.INFO, "&6[DragonUtils] &r", "&aModule initialisation started, please wait......&r");
+        logging.log(Level.INFO, "&6[DragonUtils] &r", "&aCreating/Reading files......&r");
+        List<configs.ConfigDescribeType> FilesNeedInit=List.of();
+        FilesNeedInit.add(new configs.ConfigDescribeType("/BanInfoData", "Bans.json"));
+        FilesNeedInit.add(new configs.ConfigDescribeType("/BanInfoData", "BanInfo.json"));
+        configs.init(FilesNeedInit);
+        logging.log(Level.INFO, "&6[DragonUtils] &r", "&aReading Bans.json......&r");
+        List<Object> infolist= Collections.singletonList(configs.readJson(new configs.ConfigDescribeType("/BanInfoData", "Bans.json")));
+        for(Object banId:infolist)
+        {
+            banlist.add(new BanListType((String)configs.readJson(new configs.ConfigDescribeType("/BanInfoData/Bans.json",(String)banId+".name")),(String)configs.readJson(new configs.ConfigDescribeType("/BanInfoData/Bans.json",(String)banId+".ip")),(Integer) banId));
+        }
+        logging.log(Level.INFO, "&6[DragonUtils] &r", "&aReading BanInfo.json......&r");
+        infolist= Collections.singletonList(configs.readJson(new configs.ConfigDescribeType("/BanInfoData", "BanInfo.json")));
+        for(Object banId:infolist)
+        {
+            baninfolist.add(new BanInfoType((long)configs.readJson(new configs.ConfigDescribeType("/BanInfoData/BanInfo.json",(String)banId+".time")),(String)configs.readJson(new configs.ConfigDescribeType("/BanInfoData/BanInfo.json",(String)banId+".reason")),(long)configs.readJson(new configs.ConfigDescribeType("/BanInfoData/BanInfo.json",(String)banId+".duration")),(Integer) banId));
+        }
+        logging.log(Level.INFO, "&6[DragonUtils] &r", "&aRead completed!&r");
+        logging.log(Level.INFO, "&6[DragonUtils] &r", "&aModule initialisation completed, enjoy!&r");
+    }
+
+    /**
+     * 储存配置
+     * @param banlist 封禁列表
+     * @param baninfolist 封禁信息列表
+     */
+    public static void saveConfig(List<BanListType> banlist,List<BanInfoType> baninfolist)
+    {
+        logging.log(Level.INFO, "&6[DragonUtils] &r", "&aModule saving started, please wait......&r");
+        configs.clearFile("/BanInfoData/Bans.json");
+        for(BanListType banlistthing:banlist)
+        {
+            configs.writeJson("/BanInfoData/Bans.json",new configs.ConfigKeyInfo(banlistthing.banId+".name",banlistthing.name));
+            configs.writeJson("/BanInfoData/Bans.json",new configs.ConfigKeyInfo(banlistthing.banId+".ip",banlistthing.ip));
+        }
+        configs.clearFile("/BanInfoData/BanInfo.json");
+        for(BanInfoType baninfolistthing:baninfolist)
+        {
+            configs.writeJson("/BanInfoData/BanInfo.json",new configs.ConfigKeyInfo(baninfolistthing.banId+".time",baninfolistthing.time));
+            configs.writeJson("/BanInfoData/BanInfo.json",new configs.ConfigKeyInfo(baninfolistthing.banId+".reason",baninfolistthing.reason));
+            configs.writeJson("/BanInfoData/BanInfo.json",new configs.ConfigKeyInfo(baninfolistthing.banId+".duration",baninfolistthing.duration));
+        }
+        logging.log(Level.INFO, "&6[DragonUtils] &r", "&aModule saving completed!&r");
+    }
+
+    /**
      * 封禁信息存储类
      * 用于存储玩家的封禁信息
      */
     public static class BanListType // 封禁信息储存
     {
         public BanListType() {}
-        public BanListType(String name, String ip, int banId) {
+        public BanListType(String name,String ip,int banId)
+        {
             this.name=name;
             this.ip=ip;
             this.banId =banId;
         }
-
         public String name;      // 玩家名称
         public String ip;        // 玩家IP
         public int banId;
@@ -52,12 +103,13 @@ public class banning {
      */
     public static class BanInfoType
     {
-        public BanInfoType() {}
-        public BanInfoType(long time, String reason, long duration, int banId) {
+        public BanInfoType(){}
+        public BanInfoType(long time,String reason,long duration,int banId)
+        {
             this.time=time;
             this.reason=reason;
             this.duration=duration;
-            this.banId =banId;
+            this.banId=banId;
         }
         public long time;        // 解封时间（时间戳） 
         public String reason;    // 封禁原因
@@ -81,7 +133,7 @@ public class banning {
             this.duration=0;
             this.pointer=-1;
             this.banId =-1;
-            if(debug) logging.log(Level.INFO, GodKillerAnticheat.banPrefix, "&b&lDebug: Using false root in BanReturnType");
+            if(debug) logging.log(Level.INFO, banPrefix, "&b&lDebug: Using false root in BanReturnType");
         }
         public BanReturnType(boolean banned, String name, String ip, long time, String reason, long duration, int pointer, int banId) {
             this.banned=banned;
@@ -92,7 +144,7 @@ public class banning {
             this.duration=duration;
             this.pointer=pointer;
             this.banId =banId;
-            if(debug) logging.log(Level.INFO, GodKillerAnticheat.banPrefix, "&b&lDebug: Using true root in BanReturnType");
+            if(debug) logging.log(Level.INFO, banPrefix, "&b&lDebug: Using true root in BanReturnType");
         }
         public boolean banned;  // 是否被封禁
         public String name;     // 玩家名称
@@ -166,7 +218,7 @@ public class banning {
             if(banListThing.banId ==banId)
             {
                 Player banedplayer = Bukkit.getPlayerExact(name);
-                if (banedplayer!=null && banedplayer.isOnline()) banedplayer.kickPlayer(logging.ChangeColorcode(GodKillerAnticheat.banPrefix + "\n&b诛仙!你被封印了!" + "\n&6&k|&r&6&l剩余封印时间&r&6&k| &r&a&n" + formatTimeprd(duration, logging.ChangeColorcode("&byyyy&4年 &bMM&c月 &bdd&e天 | &bHH&2小时 &bmm&a分钟 &bss&9秒")) + "&r" + "\n&c&l理由: &r&e&n" + reason));
+                if (banedplayer!=null && banedplayer.isOnline()) banedplayer.kickPlayer(logging.ChangeColorcode(banPrefix + "\n&b诛仙!你被封印了!" + "\n&6&k|&r&6&l剩余封印时间&r&6&k| &r&a&n" + formatTimeprd(duration, logging.ChangeColorcode("&byyyy&4年 &bMM&c月 &bdd&e天 | &bHH&2小时 &bmm&a分钟 &bss&9秒")) + "&r" + "\n&c&l理由: &r&e&n" + reason));
                 return count;
             }
             if(banListThing.name.equals(name) || banListThing.ip.equals(ip))
@@ -187,12 +239,12 @@ public class banning {
                     banlist.set(banlist.indexOf(banListThing), banListThing);
                 }
                 Player banedplayer= Bukkit.getPlayerExact(name);
-                if(banedplayer!=null && banedplayer.isOnline()) banedplayer.kickPlayer(logging.ChangeColorcode(GodKillerAnticheat.banPrefix +"\n&b诛仙!你被封印了!"+ "\n&6&k|&r&6&l剩余封印时间&r&6&k| &r&a&n"+ formatTimeprd(duration,logging.ChangeColorcode("&byyyy&4年 &bMM&c月 &bdd&e天 | &bHH&2小时 &bmm&a分钟 &bss&9秒"))+"&r"+"\n&c&l理由: &r&e&n"+reason));
+                if(banedplayer!=null && banedplayer.isOnline()) banedplayer.kickPlayer(logging.ChangeColorcode(banPrefix +"\n&b诛仙!你被封印了!"+ "\n&6&k|&r&6&l剩余封印时间&r&6&k| &r&a&n"+ formatTimeprd(duration,logging.ChangeColorcode("&byyyy&4年 &bMM&c月 &bdd&e天 | &bHH&2小时 &bmm&a分钟 &bss&9秒"))+"&r"+"\n&c&l理由: &r&e&n"+reason));
             }
         }
         addBan(banlist,name,ip,duration+System.currentTimeMillis(),reason,duration);
         Player banedplayer= Bukkit.getPlayerExact(name);
-        if(banedplayer!=null && banedplayer.isOnline()) banedplayer.kickPlayer(logging.ChangeColorcode(GodKillerAnticheat.banPrefix +"\n&b诛仙!你被封印了!"+ "\n&6&k|&r&6&l剩余封印时间&r&6&k| &r&a&n"+ formatTimeprd(duration,logging.ChangeColorcode("&byyyy&4年 &bMM&c月 &bdd&e天 | &bHH&2小时 &bmm&a分钟 &bss&9秒"))+"&r"+"\n&c&l理由: &r&e&n"+reason));
+        if(banedplayer!=null && banedplayer.isOnline()) banedplayer.kickPlayer(logging.ChangeColorcode(banPrefix +"\n&b诛仙!你被封印了!"+ "\n&6&k|&r&6&l剩余封印时间&r&6&k| &r&a&n"+ formatTimeprd(duration,logging.ChangeColorcode("&byyyy&4年 &bMM&c月 &bdd&e天 | &bHH&2小时 &bmm&a分钟 &bss&9秒"))+"&r"+"\n&c&l理由: &r&e&n"+reason));
         return count;
     }
 
@@ -258,7 +310,7 @@ public class banning {
     public static int mercyWave(List<BanListType> banlist, long timeBefore)
     {
         int count = 0;
-        List<BanInfoType> toRemove = new java.util.ArrayList<>();
+        List<BanInfoType> toRemove = new ArrayList<>();
         Iterator<BanInfoType> iterator = baninfolist.iterator();
         while (iterator.hasNext())
         {
@@ -298,7 +350,7 @@ public class banning {
      */
     static BanReturnType banTimeCheck(String name,String ip,BanInfoType list,BanListType listobj)
     {
-        if(debug) logging.log(Level.INFO, GodKillerAnticheat.banPrefix, "&b&lDebug: Find Place: "+banlist.indexOf(listobj));
+        if(debug) logging.log(Level.INFO, banPrefix, "&b&lDebug: Find Place: "+banlist.indexOf(listobj));
         return new BanReturnType((list.time > System.currentTimeMillis() || list.duration == 0), name, ip, list.time, list.reason, list.duration,banlist.indexOf(listobj),list.banId);
     }
 
@@ -306,10 +358,10 @@ public class banning {
     {
         if(debug)
         {
-            logging.log(Level.INFO, GodKillerAnticheat.banPrefix, "&b&lDebug: TargetIP: "+ip.split("/")[1] + " "+ip);
+            logging.log(Level.INFO, banPrefix, "&b&lDebug: TargetIP: "+ip.split("/")[1] + " "+ip);
             for(BanListType list:banlist)
             {
-                logging.log(Level.INFO, GodKillerAnticheat.banPrefix, "&b&lDebug: FoundIP: "+list.ip.split("/")[0]);
+                logging.log(Level.INFO, banPrefix, "&b&lDebug: FoundIP: "+list.ip.split("/")[0]);
             }
         }
         Optional<BanListType> banListThing = banlist.stream().filter(list->list.name.equalsIgnoreCase(name) || list.ip.split("/")[0].equalsIgnoreCase(ip.split("/")[1])).findFirst();
