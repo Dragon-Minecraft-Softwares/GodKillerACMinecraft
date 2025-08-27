@@ -61,16 +61,14 @@ public final class GodKillerAnticheat extends JavaPlugin implements Listener
             loging(Level.INFO, "启动事件监听...");
             getServer().getPluginManager().registerEvents(this, this);
             loging(Level.INFO, "监听启动完成");
+            loging(Level.INFO, "初始化DragonUtils...");
+            utils.init(this);
             loging(Level.INFO, "加载配置文件...");
             // 加载配置文件
             List<configs.ConfigDescribeType> ConfigList=new ArrayList<>();
             ConfigList.add(new configs.ConfigDescribeType("","config.yml"));
-            ConfigList.add(new configs.ConfigDescribeType("runtimedata","baninfolist.json"));
-            ConfigList.add(new configs.ConfigDescribeType("runtimedata","banplayerlist.json"));
             configs.init(ConfigList);
             loging(Level.INFO, "插件配置加载完成");
-            loging(Level.INFO, "初始化DragonUtils...");
-            utils.init(this);
             banning.init(banlist,baninfolist);
             loging(Level.INFO, "DragonUtils初始化完成...");
             loging(Level.INFO, "正在加载bStats,这不会收集你的个人数据,请放心使用...");
@@ -84,6 +82,7 @@ public final class GodKillerAnticheat extends JavaPlugin implements Listener
         catch(Exception e)
         {
             loging(Level.WARNING,"插件启动失败!这大概是内部错误,请联系DragonMinecraftSoftwares并附上报错信息: "+e);
+            e.printStackTrace();
             getServer().getPluginManager().disablePlugin(this);
         }
     }

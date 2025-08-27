@@ -72,7 +72,7 @@ public class configs
      */
     public static void init(List<ConfigDescribeType> ConfigList)
     {
-        DataFolder=String.valueOf(plugin.getDataFolder());
+        DataFolder=plugin.getDataFolder().getName();
         if(!new File(DataFolder).exists())
         {
             new File(DataFolder).mkdirs();
