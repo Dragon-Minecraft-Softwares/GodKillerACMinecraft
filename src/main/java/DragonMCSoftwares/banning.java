@@ -9,6 +9,9 @@ import DragonUtils.logging;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import DragonUtils.configs;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import static DragonUtils.utils.formatTimeprd;
@@ -32,14 +35,13 @@ public class banning
     /**
      * 初始化封禁模块
      */
-    public static void init(List<BanListType> banlist,List<BanInfoType> baninfolist)
+    public static void init(List<BanListType> banlist,List<BanInfoType> baninfolist) throws IOException
     {
         logging.log(Level.INFO, "&6[DragonUtils] &r", "&aModule initialisation started, please wait......&r");
         logging.log(Level.INFO, "&6[DragonUtils] &r", "&aCreating/Reading files......&r");
-        List<configs.ConfigDescribeType> FilesNeedInit=List.of();
-        FilesNeedInit.add(new configs.ConfigDescribeType("/BanInfoData", "Bans.json"));
-        FilesNeedInit.add(new configs.ConfigDescribeType("/BanInfoData", "BanInfo.json"));
-        configs.init(FilesNeedInit);
+        if(!new File(configs.DataFolder+"/"+"BanInfoData").exists()) new File(configs.DataFolder+"/"+"BanInfoData").mkdirs();
+        if(!new File(configs.DataFolder+"/"+"BanInfoData/Bans.json").exists()) new File(configs.DataFolder+"/"+"BanInfoData/Bans.json").createNewFile();
+        if(!new File(configs.DataFolder+"/"+"BanInfoData/BanInfo.json").exists()) new File(configs.DataFolder+"/"+"BanInfoData/BanInfo.json").createNewFile();
         logging.log(Level.INFO, "&6[DragonUtils] &r", "&aReading Bans.json......&r");
         List<Object> infolist= Collections.singletonList(configs.readJson(new configs.ConfigDescribeType("/BanInfoData", "Bans.json")));
         for(Object banId:infolist)
