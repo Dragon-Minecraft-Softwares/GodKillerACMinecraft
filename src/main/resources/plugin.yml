@@ -2,6 +2,7 @@ name: GodKillerAntiCheatSystem
 version: '0.1-PreAlpha'
 api-version: '1.21'
 main: DragonMCSoftwares.GodKillerAnticheat
+depend: ["DragonCore"]
 prefix: "诛仙反作弊系统"
 load: STARTUP
 authors: [ "HelloWorldCoder(-China)","jcyang20(atm machine)" ]

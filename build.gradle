@@ -1,7 +1,7 @@
 plugins {
     id 'java'
-    id("xyz.jpenilla.run-paper")
-    id 'com.github.johnrengelman.shadow' version '9.0.2'
+    id("xyz.jpenilla.run-paper") version "2.3.1"
+    id 'com.gradleup.shadow' version '9.0.2'
 }
 
 group = 'top.helloworldcoder.godkilleranticheat'
@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.21.8-R0.1-SNAPSHOT")
-    implementation('org.json:json:20250517')
+    implementation 'org.json:json:20250517'
 }
 
 tasks {

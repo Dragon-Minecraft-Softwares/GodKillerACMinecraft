@@ -43,13 +43,14 @@ public class banning
         if(!new File(configs.DataFolder+"/"+"BanInfoData/Bans.json").exists()) new File(configs.DataFolder+"/"+"BanInfoData/Bans.json").createNewFile();
         if(!new File(configs.DataFolder+"/"+"BanInfoData/BanInfo.json").exists()) new File(configs.DataFolder+"/"+"BanInfoData/BanInfo.json").createNewFile();
         logging.log(Level.INFO, "&6[DragonUtils] &r", "&aReading Bans.json......&r");
-        List<Object> infolist= Collections.singletonList(configs.readJson(new configs.ConfigDescribeType("/BanInfoData", "Bans.json")));
+        List<Object> infolist= Collections.singletonList(configs.readJson(new configs.ConfigDescribeType("/BanInfoData/Bans.json", "")));
+        //logging.log(Level.INFO, "&6[DragonUtils] &r", infolist.toString());
         for(Object banId:infolist)
         {
             banlist.add(new BanListType((String)configs.readJson(new configs.ConfigDescribeType("/BanInfoData/Bans.json",(String)banId+".name")),(String)configs.readJson(new configs.ConfigDescribeType("/BanInfoData/Bans.json",(String)banId+".ip")),(Integer) banId));
         }
         logging.log(Level.INFO, "&6[DragonUtils] &r", "&aReading BanInfo.json......&r");
-        infolist= Collections.singletonList(configs.readJson(new configs.ConfigDescribeType("/BanInfoData", "BanInfo.json")));
+        infolist= Collections.singletonList(configs.readJson(new configs.ConfigDescribeType("/BanInfoData/BanInfo.json", "")));
         for(Object banId:infolist)
         {
             baninfolist.add(new BanInfoType((long)configs.readJson(new configs.ConfigDescribeType("/BanInfoData/BanInfo.json",(String)banId+".time")),(String)configs.readJson(new configs.ConfigDescribeType("/BanInfoData/BanInfo.json",(String)banId+".reason")),(long)configs.readJson(new configs.ConfigDescribeType("/BanInfoData/BanInfo.json",(String)banId+".duration")),(Integer) banId));
